@@ -80,8 +80,10 @@ cdef class _WindowSDL2Storage:
 
         if resizable:
             self.win_flags |= SDL_WINDOW_RESIZABLE
-        if borderless:
-            self.win_flags |= SDL_WINDOW_BORDERLESS
+        
+        if not USE_IOS:
+            if borderless:
+                self.win_flags |= SDL_WINDOW_BORDERLESS
 
         if USE_ANDROID:
             # Android is handled separately because it is important to create the window with
@@ -90,10 +92,8 @@ cdef class _WindowSDL2Storage:
                 self.win_flags |= SDL_WINDOW_FULLSCREEN
         elif USE_IOS:
             # iOS is handled separately in order to override default values.
-            if environ.get('IOS_IS_WINDOWED', 'True'):
-                self.win_flags |= ~SDL_WINDOW_BORDERLESS
-            else:
-                self.win_flags |= SDL_WINDOW_FULLSCREEN
+            if environ.get('IOS_IS_WINDOWED', 'True') == 'False':
+                self.win_flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS
         elif fullscreen == 'auto':
             self.win_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP
         elif fullscreen is True:
