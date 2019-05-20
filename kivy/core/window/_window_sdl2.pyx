@@ -78,23 +78,26 @@ cdef class _WindowSDL2Storage:
                      resizable, state):
         self.win_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI
 
-        if USE_IOS:
-            self.win_flags |= SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP
-        else:
-            if resizable:
-                self.win_flags |= SDL_WINDOW_RESIZABLE
-            if borderless:
-                self.win_flags |= SDL_WINDOW_BORDERLESS
+        if resizable:
+            self.win_flags |= SDL_WINDOW_RESIZABLE
+        if borderless:
+            self.win_flags |= SDL_WINDOW_BORDERLESS
 
-            if USE_ANDROID:
-                # Android is handled separately because it is important to create the window with
-                # the same fullscreen setting as AndroidManifest.xml.
-                if environ.get('P4A_IS_WINDOWED', 'True') == 'False':
-                    self.win_flags |= SDL_WINDOW_FULLSCREEN
-            elif fullscreen == 'auto':
-                self.win_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP
-            elif fullscreen is True:
+        if USE_ANDROID:
+            # Android is handled separately because it is important to create the window with
+            # the same fullscreen setting as AndroidManifest.xml.
+            if environ.get('P4A_IS_WINDOWED', 'True') == 'False':
                 self.win_flags |= SDL_WINDOW_FULLSCREEN
+        elif USE_IOS:
+            # iOS is handled separately in order to override default values.
+            if environ.get('IOS_IS_WINDOWED', 'True'):
+                self.win_flags |= ~SDL_WINDOW_BORDERLESS
+            else:
+                self.win_flags |= SDL_WINDOW_FULLSCREEN
+        elif fullscreen == 'auto':
+            self.win_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP
+        elif fullscreen is True:
+            self.win_flags |= SDL_WINDOW_FULLSCREEN
         if state == 'maximized':
             self.win_flags |= SDL_WINDOW_MAXIMIZED
         elif state == 'minimized':
@@ -348,8 +351,7 @@ cdef class _WindowSDL2Storage:
             mode = SDL_WINDOW_FULLSCREEN
         else:
             mode = False
-        IF not USE_IOS:
-            SDL_SetWindowFullscreen(self.win, mode)
+        SDL_SetWindowFullscreen(self.win, mode)
 
     def set_window_title(self, title):
         SDL_SetWindowTitle(self.win, <bytes>title.encode('utf-8'))
