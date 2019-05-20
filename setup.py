@@ -34,6 +34,11 @@ except ImportError:
 
 PY3 = sys.version > '3'
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # python 2
+
 if PY3:  # fix error with py3's LooseVersion comparisons
     def ver_equal(self, other):
         return self.version == other
@@ -54,7 +59,7 @@ def get_version(filename='kivy/version.py'):
         GIT_REVISION = check_output(
             ['git', 'rev-parse', 'HEAD']
         ).strip().decode('ascii')
-    except (CalledProcessError, OSError, IOError) as e:
+    except (CalledProcessError, OSError, IOError, FileNotFoundError) as e:
         # CalledProcessError has no errno
         errno = getattr(e, 'errno', None)
         if errno != 2 and 'CalledProcessError' not in repr(e):
@@ -1073,6 +1078,7 @@ if not build_examples:
             'A software library for rapid development of '
             'hardware-accelerated multitouch applications.'),
         long_description=get_description(),
+        long_description_content_type='text/markdown',
         ext_modules=ext_modules,
         cmdclass=cmdclass,
         packages=[
@@ -1205,5 +1211,6 @@ else:
         url='http://kivy.org',
         license='MIT',
         description=('Kivy examples.'),
+        long_description_content_type='text/markdown',
         long_description=get_description(),
         data_files=list(examples.items()))

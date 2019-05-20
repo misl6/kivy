@@ -2459,8 +2459,9 @@ class TextInput(FocusBehavior, Widget):
         win = EventLoop.window
 
         # This allows *either* ctrl *or* cmd, but not both.
-        is_shortcut = (modifiers == ['ctrl'] or (
-            _is_osx and modifiers == ['meta']))
+        modifiers = set(modifiers) - {'capslock', 'numlock'}
+        is_shortcut = (modifiers == {'ctrl'} or (
+            _is_osx and modifiers == {'meta'}))
         is_interesting_key = key in (list(self.interesting_keys.keys()) + [27])
 
         if not self.write_tab and super(TextInput,
@@ -2769,9 +2770,11 @@ class TextInput(FocusBehavior, Widget):
     cursor[1], read-only.
     '''
 
-    cursor_pos = AliasProperty(_get_cursor_pos, None, bind=(
-        'cursor', 'padding', 'pos', 'size', 'focus',
-        'scroll_x', 'scroll_y'))
+    cursor_pos = AliasProperty(_get_cursor_pos, None,
+                               bind=('cursor', 'padding', 'pos', 'size',
+                                     'focus', 'scroll_x', 'scroll_y',
+                                     'line_height', 'line_spacing'),
+                               cache=True)
     '''Current position of the cursor, in (x, y).
 
     :attr:`cursor_pos` is an :class:`~kivy.properties.AliasProperty`,
@@ -2819,7 +2822,7 @@ class TextInput(FocusBehavior, Widget):
     defaults to 4.
     '''
 
-    padding_x = VariableListProperty([0, 0], length=2)
+    padding_x = VariableListProperty([0, 0], length=2, deprecated=True)
     '''Horizontal padding of the text: [padding_left, padding_right].
 
     padding_x also accepts a one argument form [padding_horizontal].
@@ -2835,7 +2838,7 @@ class TextInput(FocusBehavior, Widget):
         self.padding[0] = value[0]
         self.padding[2] = value[1]
 
-    padding_y = VariableListProperty([0, 0], length=2)
+    padding_y = VariableListProperty([0, 0], length=2, deprecated=True)
     '''Vertical padding of the text: [padding_top, padding_bottom].
 
     padding_y also accepts a one argument form [padding_vertical].
@@ -3105,7 +3108,7 @@ class TextInput(FocusBehavior, Widget):
         self._refresh_text(text)
         self.cursor = self.get_cursor_from_index(len(text))
 
-    text = AliasProperty(_get_text, _set_text, bind=('_lines', ))
+    text = AliasProperty(_get_text, _set_text, bind=('_lines',))
     '''Text of the widget.
 
     Creation of a simple hello world::
@@ -3299,11 +3302,12 @@ class TextInput(FocusBehavior, Widget):
         return (len(self._lines) * (self.line_height + self.line_spacing) +
                 self.padding[1] + self.padding[3])
 
-    minimum_height = AliasProperty(_get_min_height, None,
+    minimum_height = AliasProperty(_get_min_height,
                                    bind=('_lines', 'line_spacing', 'padding',
                                          'font_size', 'font_name', 'password',
                                          'font_context', 'hint_text',
-                                         'line_height'))
+                                         'line_height'),
+                                   cache=True)
     '''Minimum height of the content inside the TextInput.
 
     .. versionadded:: 1.8.0

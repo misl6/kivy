@@ -29,6 +29,9 @@ class BaseClass(object):
         self.children.append(widget)
         widget.parent = self
 
+    def dispatch(self, event_type, *largs, **kwargs):
+        pass
+
     def create_property(self, name, value=None):
         pass
 
@@ -38,6 +41,10 @@ class BaseClass(object):
     def fbind(self, name, func, *largs):
         self.binded_func[name] = partial(func, *largs)
         return True
+
+    def apply_class_lang_rules(
+            self, root=None, ignored_consts=set(), rule_children=None):
+        pass
 
 
 class TLangClass(BaseClass):
