@@ -91,8 +91,8 @@ cdef list fbo_release_list = []
 
 # must be running GLES2 not just the headers
 cdef int IS_GLES_PLATFORM = USE_OPENGL_ES2
-if platform == "darwin":
-    IS_GLES_PLATFORM = 0
+# if platform == "darwin":
+#    IS_GLES_PLATFORM = 0
 
 
 # XXX OpenGL & GLES 3 symbol, but works and requied on "GLES 2" on iOS
