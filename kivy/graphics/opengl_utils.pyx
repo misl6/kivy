@@ -107,10 +107,10 @@ cpdef int gl_has_capability(int cap):
     # ok, never been initialized, do it now.
     if cap == c_GLCAP_BGRA:
         msg = 'BGRA texture support'
-        if _platform == 'ios':
-            value = gl_has_extension('APPLE_texture_format_BGRA8888')
-        else:
-            value = gl_has_extension('EXT_bgra')
+        #if _platform == 'ios':
+        #    value = gl_has_extension('APPLE_texture_format_BGRA8888')
+        #else:
+        value = gl_has_extension('EXT_bgra')
         if not value:
             value = gl_has_extension('EXT_texture_format_BGRA888')
 
@@ -147,15 +147,15 @@ cpdef int gl_has_capability(int cap):
         if not value:
             value = gl_has_extension('EXT_texture_compression_dxt1')
 
-    elif cap == c_GLCAP_PVRTC:
-        # PVRTC = PowerVR, mostly available in iOS device
-        msg = 'PVRTC texture support'
-        value = gl_has_extension('IMG_texture_compression_pvrtc')
+    # elif cap == c_GLCAP_PVRTC:
+    #    # PVRTC = PowerVR, mostly available in iOS device
+    #    msg = 'PVRTC texture support'
+    #    value = gl_has_extension('IMG_texture_compression_pvrtc')
 
-    elif cap == c_GLCAP_ETC1:
-        # PVRTC = PowerVR, mostly available in iOS device
-        msg = 'ETC1 texture support'
-        value = gl_has_extension('OES_compressed_ETC1_RGB8_texture')
+    #elif cap == c_GLCAP_ETC1:
+    #    # PVRTC = PowerVR, mostly available in iOS device
+    #    msg = 'ETC1 texture support'
+    #    value = gl_has_extension('OES_compressed_ETC1_RGB8_texture')
 
     elif cap == c_GLCAP_UNPACK_SUBIMAGE:
         # Is GL_UNPACK_ROW_LENGTH is supported

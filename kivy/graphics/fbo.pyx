@@ -90,14 +90,14 @@ cdef list fbo_stack = []
 cdef list fbo_release_list = []
 
 # must be running GLES2 not just the headers
-cdef int IS_GLES_PLATFORM = USE_OPENGL_ES2
-if platform == "darwin":
-    IS_GLES_PLATFORM = 0
+# cdef int IS_GLES_PLATFORM = USE_OPENGL_ES2
+# if platform == "darwin":
+#    IS_GLES_PLATFORM = 0
 
 
 # XXX OpenGL & GLES 3 symbol, but works and requied on "GLES 2" on iOS
 # Adding it to headers can be complicated because it doesn't exists in gl2.h
-cdef int GL_DEPTH_STENCIL_ATTACHMENT = 0x821A
+# cdef int GL_DEPTH_STENCIL_ATTACHMENT = 0x821A
 
 
 cdef class Fbo(RenderContext):
@@ -187,11 +187,13 @@ cdef class Fbo(RenderContext):
         self._texture = kwargs['texture']
         self.observers = []
 
+        """
         if IS_GLES_PLATFORM:
             # on GLES/iOS, depthbuffer works with stencil enabled
             # that's how openFrameworks did for all GLES platform in ofFbo.cpp
             if self._depthbuffer_attached:
                 self._stencilbuffer_attached = True
+        """
 
         self.create_fbo()
 
@@ -237,14 +239,14 @@ cdef class Fbo(RenderContext):
                                   self._width, self._height)
             cgl.glBindRenderbuffer(GL_RENDERBUFFER, old_rid)
 
-            if IS_GLES_PLATFORM:
-                cgl.glFramebufferRenderbuffer(
-                    GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                    GL_RENDERBUFFER, f_id)
-            else:
-                cgl.glFramebufferRenderbuffer(
-                    GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                    GL_RENDERBUFFER, f_id)
+            #if IS_GLES_PLATFORM:
+            #    cgl.glFramebufferRenderbuffer(
+            #        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+            #        GL_RENDERBUFFER, f_id)
+            # else:
+            cgl.glFramebufferRenderbuffer(
+                GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                GL_RENDERBUFFER, f_id)
 
         # if we need depth, create a renderbuffer
         elif self._depthbuffer_attached:
