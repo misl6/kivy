@@ -490,7 +490,21 @@ camera_t avf_camera_init(int index, int width, int height) {
 }
 
 void avf_camera_start(camera_t camera) {
-    ((Camera *)camera)->startCaptureDevice();
+    switch ([AVCaptureDevice authorizationStatusForMediaType:(AVMediaTypeVideo)])
+    {
+        case AVAuthorizationStatusNotDetermined:
+            [AVCaptureDevice requestAccessForMediaType:(AVMediaTypeVideo) completionHandler:^(BOOL granted) {
+                if(granted){
+                    ((Camera *)camera)->startCaptureDevice();
+                }
+            }];
+        case AVAuthorizationStatusAuthorized:
+            ((Camera *)camera)->startCaptureDevice();
+        case AVAuthorizationStatusDenied:
+            break;
+        case AVAuthorizationStatusRestricted:
+            break;
+    }
 }
 
 void avf_camera_stop(camera_t camera) {
