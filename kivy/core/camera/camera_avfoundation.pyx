@@ -59,7 +59,7 @@ class CameraAVFoundation(CameraBase):
         cdef _AVStorage storage = <_AVStorage>self._storage
         if not self.stopped:
             self.stop()
-        avf_camera_deinit(storage.camera)
+        # avf_camera_deinit(storage.camera)
 
     def _update(self, dt):
         cdef _AVStorage storage = <_AVStorage>self._storage
