@@ -55,6 +55,7 @@ class CameraAVFoundation(CameraBase):
             self._index, self.resolution[0], self.resolution[1])
 
     def _release_camera(self):
+        print("_release called")
         cdef _AVStorage storage = <_AVStorage>self._storage
         if not self.stopped:
             self.stop()
