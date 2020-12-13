@@ -46,10 +46,19 @@ class CameraAVFoundation(CameraBase):
         self._metadata_callback = None
         super(CameraAVFoundation, self).__init__(**kwargs)
 
+    def __del__(self):
+        self._release_camera()
+
     def init_camera(self):
         cdef _AVStorage storage = <_AVStorage>self._storage
         storage.camera = avf_camera_init(
             self._index, self.resolution[0], self.resolution[1])
+
+    def _release_camera(self):
+        cdef _AVStorage storage = <_AVStorage>self._storage
+        if not self.stopped:
+            self.stop()
+        avf_camera_deinit(storage.camera)
 
     def _update(self, dt):
         cdef _AVStorage storage = <_AVStorage>self._storage
