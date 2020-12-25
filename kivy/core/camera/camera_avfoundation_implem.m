@@ -708,6 +708,8 @@ void avf_camera_get_image(camera_t camera, int *width, int *height, int *rowsize
 void avf_camera_get_image_props(camera_t camera, int *width, int *height, int *rowsize){
     CameraFrame *frame = ((Camera *)camera)->retrieveFrame();
     *width = *height = *rowsize = 0;
+    if (frame == nil)
+        return;
     *width = frame->width;
     *height = frame->height;
     *rowsize = frame->rowsize;

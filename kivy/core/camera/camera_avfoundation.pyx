@@ -65,8 +65,8 @@ class CameraAVFoundation(CameraBase):
             return
 
         avf_camera_update(storage.camera)
-        avf_camera_get_image_props(storage.camera,
-            &width, &height, &rowsize)
+        avf_camera_get_image(storage.camera,
+            &width, &height, &rowsize, &data)
 
         if data == NULL:
             return
