@@ -79,7 +79,7 @@ class CameraAVFoundation(CameraBase):
             self._texture.flip_vertical()
             self.dispatch('on_load')
 
-        self._buffer = <bytes>data[:rowsize * height]
+        self._buffer = data[:rowsize * height]
         self._format = 'bgra'
         self._copy_to_gpu()
         if self._metadata_callback:
