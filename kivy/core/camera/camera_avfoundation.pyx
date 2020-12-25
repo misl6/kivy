@@ -28,7 +28,7 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.core.camera import CameraBase
 from kivy.utils import platform
-
+from libc.stdlib cimport malloc, free
 
 cdef class _AVStorage:
     cdef camera_t camera
@@ -55,9 +55,10 @@ class CameraAVFoundation(CameraBase):
     def _update(self, dt):
         cdef _AVStorage storage = <_AVStorage>self._storage
         cdef int width, height, rowsize
-        cdef char *data
+        # cdef char *data
         cdef char *metadata_type
         cdef char *metadata_data
+        cdef char *data = <char *> malloc( sizeof(char) * rowsize * height)
 
         if self.stopped:
             return
@@ -82,6 +83,7 @@ class CameraAVFoundation(CameraBase):
         self._buffer = data
         self._format = 'bgra'
         self._copy_to_gpu()
+        free(data)
         if self._metadata_callback:
             if avf_camera_have_new_metadata(storage.camera):
                 avf_camera_get_metadata(storage.camera, &metadata_type, &metadata_data)
