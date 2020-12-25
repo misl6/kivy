@@ -82,7 +82,7 @@ class CameraAVFoundation(CameraBase):
             self.dispatch('on_load')
         
         self._format = 'bgra'
-        self._texture.blit_buffer(avf_camera_get_image_buffer(storage.camera), colorfmt=self._format)
+        self._texture.blit_buffer(avf_camera_get_image_buffer(storage.camera)[:rowsize * height], colorfmt=self._format)
         # self._buffer = <bytes>data[:rowsize * height]
         self._copy_to_gpu()
 
