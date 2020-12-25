@@ -15,6 +15,8 @@ cdef extern from "camera_avfoundation_implem.h":
     void avf_camera_start(camera_t camera)
     void avf_camera_stop(camera_t camera)
     void avf_camera_get_image(camera_t camera, int *width, int *height, int *rowsize, char **data)
+    void avf_camera_get_image_props(camera_t camera, int *width, int *height, int *rowsize)
+    char *avf_camera_get_image_buffer(camera_t camera)
     bint avf_camera_attempt_framerate_selection(camera_t camera, int fps)
     bint avf_camera_attempt_capture_preset(camera_t camera, char* preset)
     bint avf_camera_attempt_start_metadata_analysis(camera_t camera)
@@ -63,8 +65,8 @@ class CameraAVFoundation(CameraBase):
             return
 
         avf_camera_update(storage.camera)
-        avf_camera_get_image(storage.camera,
-            &width, &height, &rowsize, &data)
+        avf_camera_get_image_props(storage.camera,
+            &width, &height, &rowsize)
 
         if data == NULL:
             return
@@ -80,7 +82,7 @@ class CameraAVFoundation(CameraBase):
             self.dispatch('on_load')
         
         self._format = 'bgra'
-        self._texture.blit_buffer(<bytes>data[:rowsize * height], colorfmt=self._format)
+        self._texture.blit_buffer(avf_camera_get_image_buffer(storage.camera), colorfmt=self._format)
         # self._buffer = <bytes>data[:rowsize * height]
         self._copy_to_gpu()
 

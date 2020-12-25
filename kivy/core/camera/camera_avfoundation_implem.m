@@ -705,6 +705,19 @@ void avf_camera_get_image(camera_t camera, int *width, int *height, int *rowsize
     *data = frame->data;
 }
 
+void avf_camera_get_image_props(camera_t camera, int *width, int *height, int *rowsize){
+    CameraFrame *frame = ((Camera *)camera)->retrieveFrame();
+    *width = *height = *rowsize = 0;
+    *width = frame->width;
+    *height = frame->height;
+    *rowsize = frame->rowsize;
+}
+
+char *avf_camera_get_image_buffer(camera_t camera){
+    CameraFrame *frame = ((Camera *)camera)->retrieveFrame();
+    return frame->data;
+}
+
 bool avf_camera_attempt_framerate_selection(camera_t camera, int fps){
     return ((Camera *)camera)->attemptFrameRateSelection(fps);
 }
