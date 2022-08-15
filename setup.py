@@ -14,7 +14,6 @@ from copy import deepcopy
 import os
 from os.path import join, dirname, sep, exists, basename, isdir
 from os import walk, environ, makedirs
-from distutils.command.build_ext import build_ext
 from distutils.version import LooseVersion
 from distutils.sysconfig import get_python_inc
 from collections import OrderedDict
@@ -23,6 +22,7 @@ from sysconfig import get_paths
 from pathlib import Path
 import logging
 from setuptools import setup, Extension, find_packages
+from setuptools.command.build_ext import build_ext as _build_ext
 
 
 if sys.version_info[0] == 2:
@@ -204,28 +204,7 @@ with open(join(src_path, 'kivy', '_version.py'), encoding="utf-8") as f:
     exec(f.read())
 
 
-class KivyBuildExt(build_ext, object):
-
-    def __new__(cls, *a, **kw):
-        # Note how this class is declared as a subclass of distutils
-        # build_ext as the Cython version may not be available in the
-        # environment it is initially started in. However, if Cython
-        # can be used, setuptools will bring Cython into the environment
-        # thus its version of build_ext will become available.
-        # The reason why this is done as a __new__ rather than through a
-        # factory function is because there are distutils functions that check
-        # the values provided by cmdclass with issublcass, and so it would
-        # result in an exception.
-        # The following essentially supply a dynamically generated subclass
-        # that mix in the cython version of build_ext so that the
-        # functionality provided will also be executed.
-        if can_use_cython:
-            from Cython.Distutils import build_ext as cython_build_ext
-            build_ext_cls = type(
-                'KivyBuildExt', (KivyBuildExt, cython_build_ext), {})
-            return super(KivyBuildExt, cls).__new__(build_ext_cls)
-        else:
-            return super(KivyBuildExt, cls).__new__(cls)
+class KivyBuildExt(_build_ext, object):
 
     def finalize_options(self):
         retval = super(KivyBuildExt, self).finalize_options()
