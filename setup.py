@@ -24,6 +24,7 @@ from pathlib import Path
 import logging
 from setuptools import setup, Extension, find_packages
 
+MIN_SUPPORTED_SDL="2.0.18"
 
 if sys.version_info[0] == 2:
     logging.critical(
@@ -515,7 +516,9 @@ if c_options['use_sdl2'] or (
 
     if not sdl2_valid and platform != "ios":
         # use pkg-config approach instead
-        sdl2_flags = pkgconfig('sdl2', 'SDL2_ttf', 'SDL2_image', 'SDL2_mixer')
+        sdl2_flags = pkgconfig(
+            f"sdl2 >= {MIN_SUPPORTED_SDL}", "SDL2_ttf", "SDL2_image", "SDL2_mixer"
+        )
         if 'libraries' in sdl2_flags:
             print('SDL2 found via pkg-config')
             c_options['use_sdl2'] = True
