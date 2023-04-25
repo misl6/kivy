@@ -19,8 +19,10 @@ from time import sleep
 from pathlib import Path
 import logging
 import sysconfig
+import textwrap
+import tempfile
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Distribution, Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 if sys.version_info[0] == 2:
@@ -103,6 +105,39 @@ def get_isolated_env_paths():
     return includes, libs
 
 
+def check_c_source_compiles(code, include_dirs=None):
+    """Checks if can compile the given code.
+    We use this check to determine if specific parts of Kivy
+    can be compiled.
+    """
+
+    def get_compiler():
+        build_ext = Distribution().get_command_obj("build_ext")
+        build_ext.finalize_options()
+        # register an extension to ensure a compiler is created
+        build_ext.extensions = [Extension("ignored", ["ignored.c"])]
+        # disable building fake extensions
+        build_ext.build_extensions = lambda: None
+        # run to populate self.compiler
+        build_ext.run()
+        return build_ext.compiler
+
+    # Create a temporary file which contains the code
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_file = os.path.join(temp_dir, "test.c")
+        with open(temp_file, "w") as fh:
+            fh.write(code)
+
+        try:
+            get_compiler().compile(
+                [temp_file], extra_postargs=[], include_dirs=include_dirs
+            )
+        except Exception as e:
+            print(e)
+            return False
+    return True
+
+
 # -----------------------------------------------------------------------------
 
 # Determine on which platform we are
@@ -163,7 +198,7 @@ if KIVY_DEPS_ROOT is None and platform in ('linux', 'darwin'):
 # Detect options
 #
 c_options = OrderedDict()
-c_options['use_rpi'] = platform == 'rpi'
+c_options['use_rpi_vidcore_lite'] = platform == 'rpi'
 c_options['use_egl'] = False
 c_options['use_opengl_es2'] = None
 c_options['use_opengl_mock'] = environ.get('READTHEDOCS', None) == 'True'
@@ -954,11 +989,28 @@ if c_options['use_avfoundation']:
     else:
         print('AVFoundation cannot be used, OSX >= 10.7 is required')
 
-if c_options['use_rpi']:
-    sources['lib/vidcore_lite/egl.pyx'] = merge(
-        base_flags, gl_flags)
-    sources['lib/vidcore_lite/bcm.pyx'] = merge(
-        base_flags, gl_flags)
+if c_options['use_rpi_vidcore_lite']:
+
+    have_dispmanx = check_c_source_compiles(
+        textwrap.dedent(
+            """
+        #include <bcm_host.h>
+        #include <EGL/eglplatform.h>
+        int main(int argc, char **argv) {
+            EGL_DISPMANX_WINDOW_T window;
+            bcm_host_init();
+        }
+        """
+        ),
+        include_dirs=gl_flags["include_dirs"],
+    )
+
+    if have_dispmanx:
+
+        sources['lib/vidcore_lite/egl.pyx'] = merge(
+            base_flags, gl_flags)
+        sources['lib/vidcore_lite/bcm.pyx'] = merge(
+            base_flags, gl_flags)
 
 if c_options['use_x11']:
     libs = ['Xrender', 'X11']
