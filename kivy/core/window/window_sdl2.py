@@ -886,17 +886,17 @@ class WindowSDL(WindowBase):
     def request_keyboard(
             self, callback, target, input_type='text', keyboard_suggestions=True
     ):
-        self._sdl_keyboard = super(WindowSDL, self).\
-            request_keyboard(
+        self._sdl_keyboard = super().request_keyboard(
             callback, target, input_type, keyboard_suggestions
         )
-        self._win.show_keyboard(
-            self._system_keyboard,
-            self.softinput_mode,
-            input_type,
-            keyboard_suggestions,
-        )
-        Clock.schedule_interval(self._check_keyboard_shown, 1 / 5.)
+        if self.use_syskeyboard:
+            self._win.show_keyboard(
+                self._system_keyboard,
+                self.softinput_mode,
+                input_type,
+                keyboard_suggestions,
+            )
+            Clock.schedule_interval(self._check_keyboard_shown, 1 / 5.)
         return self._sdl_keyboard
 
     def release_keyboard(self, *largs):
