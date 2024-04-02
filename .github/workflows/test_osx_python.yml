@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.runs_on }}
     strategy:
       matrix:
-        runs_on: ['macos-latest', 'apple-silicon-m1']
+        runs_on: ['macos-latest', 'apple-silicon-m1', 'macos-14']
         python: ['3.x']
     steps:
     - uses: actions/checkout@v3
