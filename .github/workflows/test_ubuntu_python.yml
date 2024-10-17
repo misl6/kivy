@@ -13,7 +13,7 @@ jobs:
     - name: Set up Python 3
       uses: actions/setup-python@v5
       with:
-        python-version: 3.13-dev
+        python-version: 3.13
     - name: Install CI/CD Python requirements
       run: |
         python -m pip install -r .ci/cicd-requirements.txt
@@ -30,7 +30,7 @@ jobs:
     - name: Set up Python 3
       uses: actions/setup-python@v5
       with:
-        python-version: 3.13-dev
+        python-version: 3.13
     - name: Install CI/CD Python requirements
       run: |
         python -m pip install -r .ci/cicd-requirements.txt
@@ -52,13 +52,9 @@ jobs:
       run: |
         source .ci/ubuntu_ci.sh
         test_kivy
-    # FIXME: re-enable coveralls when Python 3.13 is supported by coveralls
-    #- name: Coveralls upload
-    #  if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    #  env:
-    #    COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-    #  run: |
-    #    python -m coveralls
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     - name: Test Kivy benchmarks
       run: |
         source .ci/ubuntu_ci.sh
@@ -76,7 +72,7 @@ jobs:
     - name: Set up Python 3
       uses: actions/setup-python@v5
       with:
-        python-version: 3.13-dev
+        python-version: 3.13
     - name: Install dependencies
       run: |
         source .ci/ubuntu_ci.sh
