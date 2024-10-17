@@ -53,8 +53,7 @@ jobs:
         source .ci/ubuntu_ci.sh
         test_kivy
     - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
-      # if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      uses: coverallsapp/github-action@v2
     - name: Test Kivy benchmarks
       run: |
         source .ci/ubuntu_ci.sh
