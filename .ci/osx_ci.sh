@@ -28,7 +28,7 @@ install_platypus() {
   gunzip Platypus.app/Contents/Resources/ScriptExec.gz
 
   mkdir -p /usr/local/bin
-  mkdir -p /usr/local/share/platypus
+  sudo mkdir -p /usr/local/share/platypus
   cp Platypus.app/Contents/Resources/platypus_clt /usr/local/bin/platypus
   cp Platypus.app/Contents/Resources/ScriptExec /usr/local/share/platypus/ScriptExec
   cp -a Platypus.app/Contents/Resources/MainMenu.nib /usr/local/share/platypus/MainMenu.nib
