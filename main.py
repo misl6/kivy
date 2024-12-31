@@ -5,12 +5,12 @@ import random
 
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.skia.pure_skia import SkiaSurface
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ListProperty, ObjectProperty
 from kivy.uix.floatlayout import FloatLayout
 
+from kivy.core.skia.pure_skia import SkiaSurface
 
 Window.clear = lambda: None
 
@@ -21,7 +21,9 @@ class UI(FloatLayout):
         self.surface = SkiaSurface(*map(int, Window.size))
 
         def _reset_surface(_):
-            self.surface = SkiaSurface(*map(int, Window.size))
+            width, height = map(int, Window.size)
+            self.surface = SkiaSurface(width, height)
+            print(f"Surface updated - new size: {width}x{height}")
 
         Window.bind(on_draw=_reset_surface)
 

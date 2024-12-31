@@ -24,23 +24,47 @@
 #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include <include/gpu/ganesh/gl/GrGLAssembleInterface.h>
 
 // Effects and filters
 #include <include/effects/SkImageFilters.h>
 
+// angle
+#include "SDL2/SDL_egl.h"
+
+sk_sp<const GrGLInterface> gl_interface;
+
+void initialize_gl_interface(bool use_angle)
+{
+    // angle
+    if (use_angle)
+    {
+        gl_interface = GrGLMakeAssembledInterface(
+            nullptr,
+            [](void *ctx, const char name[]) -> GrGLFuncPtr
+            { return eglGetProcAddress(name); });
+    }
+    else
+    {
+        gl_interface = GrGLMakeNativeInterface();
+    }
+}
 
 // Structure to encapsulate Skia surface data
-struct SkiaSurfaceData {
+struct SkiaSurfaceData
+{
     sk_sp<SkSurface> surface;
-    SkCanvas* canvas;
+    SkCanvas *canvas;
     sk_sp<GrDirectContext> context;
 };
 
-SkiaSurfaceData createSkiaSurfaceData(int width, int height) {
+SkiaSurfaceData createSkiaSurfaceData(int width, int height)
+{
 
     SkSurfaceProps props;
-    sk_sp<GrDirectContext> context = GrDirectContexts::MakeGL();
-    if (!context) {
+    sk_sp<GrDirectContext> context = GrDirectContexts::MakeGL(gl_interface);
+    if (!context)
+    {
         printf("Failed to create GrContext.\n");
     }
 
@@ -51,8 +75,7 @@ SkiaSurfaceData createSkiaSurfaceData(int width, int height) {
 
     // Backend render target configuration
     GrBackendRenderTarget backendRenderTarget = GrBackendRenderTargets::MakeGL(
-        width, height, 0, 0, framebufferInfo
-    );
+        width, height, 0, 0, framebufferInfo);
 
     // Create Skia surface
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
@@ -64,14 +87,14 @@ SkiaSurfaceData createSkiaSurfaceData(int width, int height) {
         colorSpace,
         &props,
         nullptr,
-        nullptr
-    );
+        nullptr);
 
-    if (!surface) {
+    if (!surface)
+    {
         printf("Failed to create Skia surface.\n");
     }
 
-    SkCanvas* canvas = surface->getCanvas();
+    SkCanvas *canvas = surface->getCanvas();
 
     // Populate the return structure
     SkiaSurfaceData surfaceData;
@@ -82,21 +105,22 @@ SkiaSurfaceData createSkiaSurfaceData(int width, int height) {
     return surfaceData;
 }
 
-
 // Function to clear the canvas
-void clearCanvas(SkCanvas* canvas, sk_sp<GrDirectContext> context, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void clearCanvas(SkCanvas *canvas, sk_sp<GrDirectContext> context, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
     SkColor color = SkColorSetARGB(a, r, g, b);
     canvas->clear(color);
 }
 
-
-void drawCircle(SkCanvas* canvas, sk_sp<GrDirectContext> context, float x, float y, float width, float height, int segments, float angle_start, float angle_end) {
+void drawCircle(SkCanvas *canvas, sk_sp<GrDirectContext> context, float x, float y, float width, float height, int segments, float angle_start, float angle_end)
+{
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SkColorSetARGB(255, 0, 0, 255));
 
     // Basic circle drawing
-    if (width == height && segments == 0) {
+    if (width == height && segments == 0)
+    {
         float radius = width / 2.0f;
         canvas->drawCircle(x + radius, y + radius, radius, paint);
         return;
@@ -133,8 +157,8 @@ void drawCircle(SkCanvas* canvas, sk_sp<GrDirectContext> context, float x, float
     // canvas->drawPath(builder.detach(), paint);
 }
 
-
 // Function to flush and submit the context
-void flushAndSubmit(sk_sp<GrDirectContext> context) {
+void flushAndSubmit(sk_sp<GrDirectContext> context)
+{
     context->flushAndSubmit();
 }

@@ -1,3 +1,4 @@
+import os
 from libc.stdint cimport uint8_t
 from libcpp.memory cimport unique_ptr
 
@@ -27,11 +28,19 @@ cdef extern from "pure_skia_implem.cpp":
         SkCanvas* canvas
         sk_sp[GrDirectContext] context
     
+    void initialize_gl_interface(bint use_angle)
+    
     SkiaSurfaceData createSkiaSurfaceData(int width, int height) nogil
 
     void clearCanvas(SkCanvas *canvas, sk_sp[GrDirectContext] context, uint8_t r, uint8_t g, uint8_t b, uint8_t a) nogil
     void drawCircle(SkCanvas *canvas, sk_sp[GrDirectContext] context, float x, float y, float width, float height, int segments, float angle_start, float angle_end) nogil
     void flushAndSubmit(sk_sp[GrDirectContext] context) nogil
+
+
+# initialize the interface for the gl backend. The interface has similar usage to kivy's "cgl.<gl function>".
+# but it is accessed through interface->fFunctions.f<gl function>
+initialize_gl_interface("angle" in os.environ.get("KIVY_GL_BACKEND", ""))
+
 
 
 cdef class SkiaSurface:

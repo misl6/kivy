@@ -960,10 +960,9 @@ ANGLE_ROOT = "../../../DevKit/angle"
 skia_flags = {
     "include_dirs": [
         SKIA_ROOT,
-        os.path.join(ANGLE_ROOT, "include"),
-        
+
     ],
-    "libraries": SKIA_LIBRARIES + ["sdl2", "libEGL", "libGLESv2"],
+    "libraries": SKIA_LIBRARIES + ["libEGL", "libGLESv2"],
     "library_dirs": [
         os.path.join(ANGLE_ROOT, "bin"),
         os.path.join(SKIA_ROOT, "bin"),
