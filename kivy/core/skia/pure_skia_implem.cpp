@@ -48,6 +48,10 @@ void initialize_gl_interface(bool use_angle)
     {
         gl_interface = GrGLMakeNativeInterface();
     }
+
+    if (!gl_interface){
+        printf("Failed to create GL interface.\n");
+    }
 }
 
 // Structure to encapsulate Skia surface data
