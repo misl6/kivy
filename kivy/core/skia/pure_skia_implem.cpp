@@ -64,7 +64,7 @@ void initialize_gl_interface(bool use_angle)
     #endif
     else
     {
-        printf("Using native GL implementation.");
+        printf("Using native GL implementation.\n");
         gl_interface = GrGLMakeNativeInterface();
     }
 
