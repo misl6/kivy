@@ -53,9 +53,9 @@ void initialize_gl_interface(bool use_angle)
 {
     // angle
     #if !defined(__APPLE__) || __USE_ANGLE_GL_BACKEND
-    printf("Using ANGLE GL backend.\n");
     if (use_angle)
     {
+        printf("Using ANGLE GL backend.\n");
         gl_interface = GrGLMakeAssembledInterface(
             nullptr,
             [](void *ctx, const char name[]) -> GrGLFuncPtr
@@ -64,6 +64,7 @@ void initialize_gl_interface(bool use_angle)
     #endif
     else
     {
+        printf("Using native GL implementation.");
         gl_interface = GrGLMakeNativeInterface();
     }
 
