@@ -29,14 +29,31 @@
 // Effects and filters
 #include <include/effects/SkImageFilters.h>
 
+// Kivy configuration (for build flags)
+#include "config.h"
+
 // angle
+#if !defined(__APPLE__)
 #include "SDL2/SDL_egl.h"
+#endif
+
+#if __USE_ANGLE_GL_BACKEND
+    #include <EGL/egl.h>
+
+    #ifndef GL_GLEXT_PROTOTYPES
+    #define GL_GLEXT_PROTOTYPES
+    #endif
+
+    #include "angle_gl.h"
+#endif
 
 sk_sp<const GrGLInterface> gl_interface;
 
 void initialize_gl_interface(bool use_angle)
 {
     // angle
+    #if !defined(__APPLE__) || __USE_ANGLE_GL_BACKEND
+    printf("Using ANGLE GL backend.\n");
     if (use_angle)
     {
         gl_interface = GrGLMakeAssembledInterface(
@@ -44,13 +61,16 @@ void initialize_gl_interface(bool use_angle)
             [](void *ctx, const char name[]) -> GrGLFuncPtr
             { return eglGetProcAddress(name); });
     }
+    #endif
     else
     {
         gl_interface = GrGLMakeNativeInterface();
     }
 
-    if (!gl_interface){
-        printf("Failed to create GL interface.\n");
+    // Validate the GL interface to ensure it is valid
+    if (!gl_interface->validate())
+    {
+        printf("GL interface is invalid.\n");
     }
 }
 

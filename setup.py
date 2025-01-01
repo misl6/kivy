@@ -953,8 +953,19 @@ if sys.platform == "win32":
 else:
     EXTRA_COMPILE_ARGS = ['-std=c++17', '-stdlib=libc++']
 
-SKIA_ROOT = "../../../DevKit/skia-windows-x64"
-ANGLE_ROOT = "../../../DevKit/angle"
+
+if sys.platform == "win32":
+    SKIA_ROOT = "../../../DevKit/skia-windows-x64"
+    ANGLE_ROOT = "../../../DevKit/angle"
+else:
+    SKIA_ROOT = "/Users/mirko/Documents/projects/skia-builder/output/macos-arm64"
+
+
+LIBRARIES_DIRS = [os.path.join(SKIA_ROOT, "bin")]
+
+if sys.platform == "win32":
+    SKIA_LIBRARIES.extend(["libEGL", "libGLESv2"])
+    LIBRARIES_DIRS.extend([os.path.join(ANGLE_ROOT, "bin")])
 
 
 skia_flags = {
@@ -962,15 +973,14 @@ skia_flags = {
         SKIA_ROOT,
 
     ],
-    "libraries": SKIA_LIBRARIES + ["libEGL", "libGLESv2"],
-    "library_dirs": [
-        os.path.join(ANGLE_ROOT, "bin"),
-        os.path.join(SKIA_ROOT, "bin"),
-    ],
+    "libraries": SKIA_LIBRARIES,
+    "library_dirs": LIBRARIES_DIRS,
     "extra_link_args": [],
     "language": "c++",
     "extra_compile_args": EXTRA_COMPILE_ARGS,
 }
+
+skia_flags = merge(merge(skia_flags, gl_flags_base), gl_flags)
 
 sources = {
     '_event.pyx': merge(base_flags, {'depends': ['properties.pxd']}),

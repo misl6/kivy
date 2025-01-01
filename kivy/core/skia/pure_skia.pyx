@@ -2,6 +2,8 @@ import os
 from libc.stdint cimport uint8_t
 from libcpp.memory cimport unique_ptr
 
+from kivy.graphics.cgl import cgl_get_backend_name
+
 # cdef extern from "<utility>" namespace "std":
 #     cdef cppclass pair[T1, T2]:
 #         T1 first
@@ -39,7 +41,7 @@ cdef extern from "pure_skia_implem.cpp":
 
 # initialize the interface for the gl backend. The interface has similar usage to kivy's "cgl.<gl function>".
 # but it is accessed through interface->fFunctions.f<gl function>
-initialize_gl_interface("angle" in os.environ.get("KIVY_GL_BACKEND", ""))
+initialize_gl_interface("angle" in cgl_get_backend_name())
 
 
 
