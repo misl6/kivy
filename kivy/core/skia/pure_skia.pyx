@@ -38,6 +38,11 @@ cdef extern from "pure_skia_implem.cpp":
     void drawCircle(SkCanvas *canvas, sk_sp[GrDirectContext] context, float x, float y, float width, float height, int segments, float angle_start, float angle_end) nogil
     void flushAndSubmit(sk_sp[GrDirectContext] context) nogil
 
+    void drawLottie(SkCanvas *canvas, sk_sp[GrDirectContext] context, const char*)
+    void drawLottieNextFrame(SkCanvas *canvas, sk_sp[GrDirectContext] context, float t)
+    void updateLottiePosAndSize(float x, float y, float width, float height)
+    
+
 
 # initialize the interface for the gl backend. The interface has similar usage to kivy's "cgl.<gl function>".
 # but it is accessed through interface->fFunctions.f<gl function>
@@ -69,3 +74,13 @@ cdef class SkiaSurface:
     cpdef context_flush_and_submit(self):
         with nogil:
             flushAndSubmit(self.context)
+
+
+    cpdef draw_lottie(self, const char* animation_path):
+        drawLottie(self.canvas, self.context, animation_path)
+
+    cpdef lottie_seek(self, float t):
+        drawLottieNextFrame(self.canvas, self.context, t)
+
+    cpdef update_lottie_pos_and_size(self, float x, float y, float width, float height):
+        updateLottiePosAndSize(x, y, width, height)

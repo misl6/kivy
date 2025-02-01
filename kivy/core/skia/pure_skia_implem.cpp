@@ -5,13 +5,14 @@
 // Core Skia headers
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SKRRect.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
+#include "modules/skottie/include/Skottie.h"
 
 // Skia GPU headers
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -39,7 +40,6 @@
 
 #if __USE_ANGLE_GL_BACKEND
     #include <EGL/egl.h>
-
     #ifndef GL_GLEXT_PROTOTYPES
     #define GL_GLEXT_PROTOTYPES
     #endif
@@ -61,8 +61,8 @@ void initialize_gl_interface(bool use_angle)
             [](void *ctx, const char name[]) -> GrGLFuncPtr
             { return eglGetProcAddress(name); });
     }
-    #endif
     else
+    #endif
     {
         printf("Using native GL implementation.\n");
         gl_interface = GrGLMakeNativeInterface();
@@ -186,4 +186,71 @@ void drawCircle(SkCanvas *canvas, sk_sp<GrDirectContext> context, float x, float
 void flushAndSubmit(sk_sp<GrDirectContext> context)
 {
     context->flushAndSubmit();
+}
+
+//////////////////////////// Lottie ////////////////////////////
+
+sk_sp<skottie::Animation> animation;
+SkRect destRect = SkRect::MakeXYWH(100, 150, 200, 200);
+SkMatrix transformMatrix;
+SkPaint debugPaint;
+
+void drawLottie(SkCanvas *canvas, sk_sp<GrDirectContext> context, const char *animation_path) {
+    sk_sp<SkData> data = SkData::MakeFromFileName(animation_path);
+    if (!data) {
+        SkDebugf("Failure loading Lottie file: %s\n", animation_path);
+        return;
+    }
+
+    animation =
+        skottie::Animation::Make(reinterpret_cast<const char *>(data->data()), data->size());
+
+    if (!animation) {
+        SkDebugf("Failure creating Skottie animation\n");
+        return;
+    }
+
+    SkRect srcRect = SkRect::MakeSize(animation->size());
+
+    transformMatrix = SkMatrix::RectToRect(srcRect, destRect, SkMatrix::kCenter_ScaleToFit);
+
+    SkMatrix flip;
+    flip.setScale(1, -1);
+    flip.postTranslate(0, destRect.height() + destRect.y() * 2.0f);
+    transformMatrix.postConcat(flip);
+
+    debugPaint.setColor(SK_ColorBLUE);
+    debugPaint.setAlpha(0x20);
+    debugPaint.setStyle(SkPaint::kFill_Style);
+}
+
+void updateLottiePosAndSize(float x, float y, float width, float height) {
+    SkRect srcRect = SkRect::MakeSize(animation->size());
+    destRect = SkRect::MakeXYWH(x, y, width, height);
+
+    transformMatrix = SkMatrix::RectToRect(srcRect, destRect, SkMatrix::kCenter_ScaleToFit);
+
+    SkMatrix flip;
+    flip.setScale(1, -1);
+    flip.postTranslate(0, destRect.height() + destRect.y() * 2.0f);
+    transformMatrix.postConcat(flip);
+}
+
+void drawLottieNextFrame(SkCanvas *canvas, sk_sp<GrDirectContext> context, float t) {
+    animation->seek(t);
+
+    canvas->save();
+    canvas->resetMatrix();
+    canvas->drawRect(destRect, debugPaint);
+
+    debugPaint.setColor(SK_ColorRED);
+    debugPaint.setStyle(SkPaint::kStroke_Style);
+    debugPaint.setStrokeWidth(2.0f);
+    canvas->drawRect(destRect, debugPaint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->concat(transformMatrix);
+    animation->render(canvas);
+    canvas->restore();
 }
