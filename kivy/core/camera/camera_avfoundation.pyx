@@ -49,6 +49,7 @@ from kivy.core.camera import CameraBase
 from kivy.utils import platform
 from cython cimport view as cyview
 from libcpp.vector cimport vector
+from libc.string cimport memcpy
 
 
 cdef class _AVStorage:
