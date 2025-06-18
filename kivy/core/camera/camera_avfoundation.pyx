@@ -125,6 +125,9 @@ class CameraAVFoundation(CameraBase):
         cyarr.data = data
 
         self._resolution = (width, height)
+        print('CameraAVFoundation: resolution set to', self._resolution)
+        print("CameraAVFoundation: frame datasize", _current_frame.datasize, "bytes")
+        print("CameraAVFoundation: frame rowsize", rowsize, "bytes")
         
         if self._texture is None or self._texture.size != self._resolution:
             if platform == 'ios':
