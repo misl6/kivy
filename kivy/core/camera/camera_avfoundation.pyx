@@ -47,8 +47,7 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.core.camera import CameraBase
 from kivy.utils import platform
-from cython cimport view as cyview
-from libcpp.vector cimport vector
+from libc.stdlib cimport malloc, free
 from libc.string cimport memcpy
 
 
@@ -96,7 +95,6 @@ class CameraAVFoundation(CameraBase):
         cdef char *data
         cdef CameraFrame* _current_frame
         cdef CameraMetadata* _current_metadata
-        cdef vector[char] data_v
 
         if self.stopped:
             return
@@ -112,12 +110,12 @@ class CameraAVFoundation(CameraBase):
         width = _current_frame.width
         height = _current_frame.height
         rowsize = _current_frame.rowsize
-        data = _current_frame.data
 
-        if data == NULL:
+        if _current_frame.data == NULL:
             return
 
-        memcpy(data_v, data, rowsize * height)
+        data = <char*>malloc(rowsize * height * sizeof(char))
+        memcpy(data, _current_frame.data, rowsize * height * sizeof(char))
 
         self._resolution = (width, height)
         
@@ -130,8 +128,9 @@ class CameraAVFoundation(CameraBase):
             self.dispatch('on_load')
 
         self._format = 'bgra'
-        self._texture.blit_buffer(data_v, colorfmt=self._format)
+        self._texture.blit_buffer(data, colorfmt=self._format)
         self._copy_to_gpu()
+        free(data)
         if self._metadata_callback:
             if storage.camera.haveNewMetadata():
                 _current_metadata = storage.camera.retrieveMetadata()
