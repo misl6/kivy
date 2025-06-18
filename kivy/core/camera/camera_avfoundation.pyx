@@ -114,8 +114,8 @@ class CameraAVFoundation(CameraBase):
         if _current_frame.data == NULL:
             return
 
-        data = <char*>malloc(rowsize * height * sizeof(char))
-        memcpy(data, _current_frame.data, rowsize * height * sizeof(char))
+        data = <char*>malloc(_current_frame.datasize)
+        memcpy(data, _current_frame.data, _current_frame.datasize)
 
         self._resolution = (width, height)
         
