@@ -127,10 +127,7 @@ class CameraAVFoundation(CameraBase):
         self._resolution = (width, height)
         
         if self._texture is None or self._texture.size != self._resolution:
-            if platform == 'ios':
-                self._texture = Texture.create(self._resolution, colorfmt='bgra')
-            else:
-                self._texture = Texture.create(self._resolution)
+            self._texture = Texture.create(self._resolution)
             self._texture.flip_vertical()
             self.dispatch('on_load')
 
