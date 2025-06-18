@@ -48,6 +48,7 @@ from kivy.graphics.texture import Texture
 from kivy.core.camera import CameraBase
 from kivy.utils import platform
 from cython cimport view as cyview
+from libcpp.vector cimport vector
 
 
 cdef class _AVStorage:
@@ -94,7 +95,7 @@ class CameraAVFoundation(CameraBase):
         cdef char *data
         cdef CameraFrame* _current_frame
         cdef CameraMetadata* _current_metadata
-        cdef cyview.array cyarr
+        cdef vector[char] data_v
 
         if self.stopped:
             return
@@ -115,14 +116,7 @@ class CameraAVFoundation(CameraBase):
         if data == NULL:
             return
 
-        cyarr = cyview.array(
-            shape=(rowsize * height,),
-            itemsize=sizeof(char),
-            format="B",
-            mode="c",
-            allocate_buffer=True,
-        )
-        cyarr.data = data
+        memcpy(data_v, data, rowsize * height)
 
         self._resolution = (width, height)
         
@@ -135,7 +129,7 @@ class CameraAVFoundation(CameraBase):
             self.dispatch('on_load')
 
         self._format = 'bgra'
-        self._texture.blit_buffer(cyarr, colorfmt=self._format)
+        self._texture.blit_buffer(data_v, colorfmt=self._format)
         self._copy_to_gpu()
         if self._metadata_callback:
             if storage.camera.haveNewMetadata():
