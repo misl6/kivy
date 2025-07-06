@@ -1,3 +1,5 @@
+# distutils: language = c++
+
 import os
 from libc.stdint cimport uint8_t
 from libcpp.memory cimport unique_ptr
