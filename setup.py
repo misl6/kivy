@@ -962,8 +962,10 @@ if sys.platform == "win32":
 else:
     SKIA_ROOT = "/home/mirko/Documents/skia-builder/output/linux-arm64"
 
-
-LIBRARIES_DIRS = [os.path.join(SKIA_ROOT, "bin")]
+if sys.platform != "ios":
+    LIBRARIES_DIRS = [os.path.join(SKIA_ROOT, "bin")]
+else:
+    LIBRARIES_DIRS = [os.environ.get("SKIA_LIB_DIR", "")]
 
 if sys.platform == "win32":
     SKIA_LIBRARIES.extend(["libEGL", "libGLESv2"])
@@ -972,8 +974,7 @@ if sys.platform == "win32":
 
 skia_flags = {
     "include_dirs": [
-        SKIA_ROOT,
-
+        os.environ.get("SKIA_INCLUDE_DIR", SKIA_ROOT),
     ],
     "libraries": SKIA_LIBRARIES,
     "library_dirs": LIBRARIES_DIRS,
