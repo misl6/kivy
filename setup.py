@@ -915,9 +915,6 @@ graphics_dependencies = {
         'cgl.pxd', 'texture.pxd', 'vertex_instructions_line.pxi'],
     'vertex_instructions_line.pxi': ['stencil_instructions.pxd']}
 
-if c_options["use_sdl2"]:
-    sdl2_flags = determine_sdl2()
-
 SKIA_LIBRARIES = [
     "skia",
     "svg",
