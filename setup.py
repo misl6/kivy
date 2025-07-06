@@ -980,7 +980,10 @@ skia_flags = {
     "extra_compile_args": EXTRA_COMPILE_ARGS,
 }
 
-skia_flags = merge(merge(merge(skia_flags, gl_flags_base), gl_flags), sdl2_flags)
+if c_options["use_sdl3"]:
+    sdl3_flags = determine_sdl3()
+
+skia_flags = merge(merge(merge(skia_flags, gl_flags_base), gl_flags), sdl3_flags)
 
 sources = {
     '_event.pyx': merge(base_flags, {'depends': ['properties.pxd']}),
@@ -1032,9 +1035,6 @@ sources = {
     'graphics/boxshadow.pyx': merge(base_flags, gl_flags_base),
     'core/skia/pure_skia.pyx': merge(base_flags, skia_flags),
 }
-
-if c_options["use_sdl3"]:
-    sdl3_flags = determine_sdl3()
 
 if c_options['use_sdl3'] and sdl3_flags:
     sources['graphics/cgl_backend/cgl_sdl3.pyx'] = merge(
