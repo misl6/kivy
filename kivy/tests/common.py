@@ -542,9 +542,9 @@ def async_run(func=None, app_cls_func=None):
                 reason='Skipping because graphics tests are not supported on '
                        'py3.5, only on py3.6+')(func)
 
-        if app_cls_func is not None:
-            func = pytest.mark.parametrize(
-                "kivy_app", [[app_cls_func], ], indirect=True)(func)
+        # if app_cls_func is not None:
+        #     func = pytest.mark.parametrize(
+        #         "kivy_app", [[app_cls_func], ], indirect=True)(func)
 
         if kivy_eventloop == 'asyncio':
             try:
